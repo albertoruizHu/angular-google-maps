@@ -1,13 +1,16 @@
-import {Injectable, NgZone} from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 
-import 'js-marker-clusterer';
+import 'js-marker-clusterer-universal';
 
-import {MarkerManager} from '../../../core/services/managers/marker-manager';
-import {GoogleMapsAPIWrapper} from '../../../core/services/google-maps-api-wrapper';
-import {AgmMarker} from '../../../core/directives/marker';
-import {AgmMarkerCluster} from './../../directives/marker-cluster';
-import {Marker} from '@agm/core/services/google-maps-types';
-import {MarkerClustererInstance, ClusterOptions} from '../google-clusterer-types';
+import { MarkerManager } from '../../../core/services/managers/marker-manager';
+import { GoogleMapsAPIWrapper } from '../../../core/services/google-maps-api-wrapper';
+import { AgmMarker } from '../../../core/directives/marker';
+import { AgmMarkerCluster } from './../../directives/marker-cluster';
+import { Marker } from '@agm/core/services/google-maps-types';
+import {
+  MarkerClustererInstance,
+  ClusterOptions
+} from '../google-clusterer-types';
 
 declare var MarkerClusterer: any;
 
@@ -16,9 +19,12 @@ export class ClusterManager extends MarkerManager {
   private _clustererInstance: Promise<MarkerClustererInstance>;
   private _resolver: Function;
 
-  constructor(protected _mapsWrapper: GoogleMapsAPIWrapper, protected _zone: NgZone) {
+  constructor(
+    protected _mapsWrapper: GoogleMapsAPIWrapper,
+    protected _zone: NgZone
+  ) {
     super(_mapsWrapper, _zone);
-    this._clustererInstance = new Promise<MarkerClustererInstance>((resolver) => {
+    this._clustererInstance = new Promise<MarkerClustererInstance>(resolver => {
       this._resolver = resolver;
     });
   }
@@ -35,9 +41,11 @@ export class ClusterManager extends MarkerManager {
   }
 
   addMarker(marker: AgmMarker): void {
-    const clusterPromise: Promise<MarkerClustererInstance> = this.getClustererInstance();
-    const markerPromise = this._mapsWrapper
-      .createMarker({
+    const clusterPromise: Promise<
+      MarkerClustererInstance
+    > = this.getClustererInstance();
+    const markerPromise = this._mapsWrapper.createMarker(
+      {
         position: {
           lat: marker.latitude,
           lng: marker.longitude
@@ -49,14 +57,14 @@ export class ClusterManager extends MarkerManager {
         visible: marker.visible,
         zIndex: marker.zIndex,
         title: marker.title,
-        clickable: marker.clickable,
-      }, false);
+        clickable: marker.clickable
+      },
+      false
+    );
 
-    Promise
-      .all([clusterPromise, markerPromise])
-      .then(([cluster, marker]) => {
-        return cluster.addMarker(marker);
-      });
+    Promise.all([clusterPromise, markerPromise]).then(([cluster, marker]) => {
+      return cluster.addMarker(marker);
+    });
     this._markers.set(marker, markerPromise);
   }
 
@@ -141,7 +149,7 @@ export class ClusterManager extends MarkerManager {
     });
   }
 
-  setCalculator (c: AgmMarkerCluster): void {
+  setCalculator(c: AgmMarkerCluster): void {
     this.getClustererInstance().then(cluster => {
       if (typeof c.calculator === 'function') {
         cluster.setCalculator(c.calculator);
